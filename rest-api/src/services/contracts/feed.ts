@@ -1,5 +1,6 @@
+import { IPage } from "../../models/page";
 import { IPost } from "../../models/post";
 
 export interface IFeedService {
-  getPosts(): Promise<IPost[]>;
+  getPosts(): Promise<IPage<IPost>>;
 }

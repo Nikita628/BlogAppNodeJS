@@ -1,4 +1,9 @@
 export interface IPost {
   id: number;
-  text: string;
+  content: string;
+  title: string;
+  imageUrl: string;
+  author: string;
+  creator: { name: string };
+  createdAt: Date;
 }
