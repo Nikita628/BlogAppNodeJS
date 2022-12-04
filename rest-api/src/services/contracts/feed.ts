@@ -1,6 +1,10 @@
 import { IPage } from "../../models/page";
-import { IPost } from "../../models/post";
+import { IPost, IPostCreateData, IPostEditData, IPostFilterParam } from "../../models/post";
 
 export interface IFeedService {
-  getPosts(): Promise<IPage<IPost>>;
+  getPosts(filter: IPostFilterParam): Promise<IPage<IPost>>;
+  createPost(post: IPostCreateData): Promise<IPost>;
+  getPost(id: string): Promise<IPost | null>;
+  updatePost(post: IPostEditData): Promise<IPost>;
+  deletePost(id: string): Promise<void>;
 }

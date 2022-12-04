@@ -1,9 +1,30 @@
+import { IPageParam } from "./page";
+
 export interface IPost {
-  id: number;
+  id: string;
+  content: string;
+  title: string;
+  imageUrl: string;
+  creator: { name: string };
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IPostCreateData {
   content: string;
   title: string;
   imageUrl: string;
   author: string;
-  creator: { name: string };
-  createdAt: Date;
+}
+
+export interface IPostEditData {
+  id: string;
+  content: string;
+  title: string;
+  imageUrl: string;
+}
+
+
+export interface IPostFilterParam extends IPageParam {
+  title?: string;
 }
