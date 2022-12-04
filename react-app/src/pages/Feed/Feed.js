@@ -23,7 +23,12 @@ class Feed extends Component {
   };
 
   componentDidMount() {
-    fetch("URL")
+    fetch(`${config.apiUrl}/auth/status`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
+    })
       .then((res) => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch user status.");
@@ -57,7 +62,11 @@ class Feed extends Component {
       pageSize: 2,
     });
 
-    fetch(`${config.apiUrl}/feed/posts?${params}`)
+    fetch(`${config.apiUrl}/feed/posts?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
+    })
       .then((res) => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch posts.");
@@ -76,7 +85,16 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch("URL")
+    fetch(`${config.apiUrl}/auth/status`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status: this.state.status,
+      }),
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`,
+        'Content-Type': 'application/json',
+      }
+    })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
@@ -131,6 +149,9 @@ class Feed extends Component {
     fetch(url, {
       method,
       body: form,
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -183,7 +204,10 @@ class Feed extends Component {
   deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
     fetch(`${config.apiUrl}/feed/post/${postId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.props.token}`
+      }
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -232,7 +256,7 @@ class Feed extends Component {
               onChange={this.statusInputChangeHandler}
               value={this.state.status}
             />
-            <Button mode="flat" type="submit">
+            <Button mode="flat" type="submit" onClick={this.statusUpdateHandler}>
               Update
             </Button>
           </form>

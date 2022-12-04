@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { authorization } from "../middleware/authorization";
 import { feedService } from "../services";
 import { createNotFoundError, createValidationError } from "../utils/error";
 import { executeSafely } from "../utils/safeExecutor";
@@ -8,6 +9,7 @@ const feedRouter = express.Router();
 
 feedRouter.get(
   "/posts",
+  authorization,
   executeSafely(async (req, res) => {
     const page = req.query.page ?? 1;
     const pageSize = req.query.pageSize ?? 2;
@@ -26,6 +28,7 @@ feedRouter.get(
 
 feedRouter.get(
   "/post/:id",
+  authorization,
   executeSafely(async (req, res) => {
     const post = await feedService.getPost(req.params.id);
 
@@ -39,6 +42,7 @@ feedRouter.get(
 
 feedRouter.post(
   "/post",
+  authorization,
   [
     body("title").trim().isLength({ min: 5 }),
     body("content").trim().isLength({ min: 5 }),
@@ -51,7 +55,7 @@ feedRouter.post(
     }
 
     const post = await feedService.createPost({
-      author: "nik",
+      creator: req.params.userId,
       content: req.body.content,
       imageUrl: req.file?.filename ?? "",
       title: req.body.title,
@@ -63,6 +67,7 @@ feedRouter.post(
 
 feedRouter.put(
   "/post",
+  authorization,
   [
     body("title").trim().isLength({ min: 5 }),
     body("content").trim().isLength({ min: 5 }),
@@ -87,6 +92,7 @@ feedRouter.put(
 
 feedRouter.delete(
   "/post/:id",
+  authorization,
   executeSafely(async (req: Request, res: Response) => {
     await feedService.deletePost(req.params.id);
     res.status(200).json({});

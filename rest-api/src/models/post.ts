@@ -5,7 +5,7 @@ export interface IPost {
   content: string;
   title: string;
   imageUrl: string;
-  creator: { name: string };
+  creator: { name: string, id: string };
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -14,7 +14,7 @@ export interface IPostCreateData {
   content: string;
   title: string;
   imageUrl: string;
-  author: string;
+  creator: string;
 }
 
 export interface IPostEditData {

@@ -19,3 +19,11 @@ export function createNotFoundError(message: string): IError {
     errors: [],
   };
 }
+
+export function createError(message: string, status: number): IError {
+  return {
+    status,
+    message,
+    errors: [],
+  };
+}

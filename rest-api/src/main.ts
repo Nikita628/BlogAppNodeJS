@@ -8,6 +8,13 @@ import { rootPath } from "./utils/path";
 import { connectDb } from "./database/connection";
 import { errorHandling } from "./middleware/errorHandling";
 import { fileStorage } from "./middleware/fileStorage";
+import { authRouter } from "./routes/auth";
+
+// declare module 'express' {
+//     interface Request {
+//         userId: string;
+//     }
+// }
 
 const app = express();
 
@@ -19,6 +26,7 @@ app.use(fileStorage());
 
 // routes
 app.use("/feed", feedRouter);
+app.use("/auth", authRouter);
 
 // error handling middleware
 app.use(errorHandling);
