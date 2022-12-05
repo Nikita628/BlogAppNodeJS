@@ -108,14 +108,27 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch(`${config.apiUrl}/auth/signup`, {
+
+    const gqlQuery = {
+      query: `
+        mutation {
+          signup(signupData: 
+          {
+            email: "${authData.signupForm.email.value}", 
+            name: "${authData.signupForm.name.value}", 
+            password: "${authData.signupForm.password.value}"
+          }) {
+            id
+            email
+          }
+        }
+      `,
+    };
+
+    fetch(`${config.apiGraphqlUrl}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: authData.signupForm.email.value,
-        password: authData.signupForm.password.value,
-        name: authData.signupForm.name.value,
-      }),
+      body: JSON.stringify(gqlQuery),
     })
       .then((res) => {
         if (res.status === 422) {
@@ -131,6 +144,9 @@ class App extends Component {
       })
       .then((resData) => {
         console.log(resData);
+        if (resData.errors && resData.errors[0].status === 400) {
+          throw new Error('validation failed');
+        }
         this.setState({ isAuth: false, authLoading: false });
         this.props.history.replace("/");
       })

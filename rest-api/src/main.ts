@@ -15,6 +15,7 @@ import { userRouter } from "./routes/user";
 import { schema } from "./graphql/schema";
 import { resolver } from "./graphql/resolvers";
 import { errorFormatter } from "./graphql/utils";
+import { options } from "./middleware/options";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 app.use(accessControl);
 app.use("/images", express.static(path.join(rootPath, "images")));
 app.use(fileStorage());
+app.use(options);
 app.use(
   "/graphql",
   graphqlHTTP({

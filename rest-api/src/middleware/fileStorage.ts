@@ -1,7 +1,5 @@
 import multer from "multer";
 import crypto from 'crypto';
-import path from "path";
-import { rootPath } from "../utils/path";
 
 export function fileStorage() {
   const fileStorage = multer.diskStorage({
