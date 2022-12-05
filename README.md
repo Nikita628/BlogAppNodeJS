@@ -19,3 +19,11 @@ Graph QL, \
 TypeScript, \
 JWT authentication, \
 WebSockets (Socket.IO)
+
+# Architecture
+Backend main modules:\
+Core - implemented with several main services, eg. feed, auth, user, all services are hidden behind interfaces.\
+Domain entities are represented by models, eg. user, post.\
+Controllers - implemented with standard route logic in express.\
+GraphQL and Controllers in the end use the same core logic.
+
