@@ -4,6 +4,7 @@ import { authorization } from "../middleware/authorization";
 import { feedService } from "../services";
 import { createNotFoundError, createValidationError } from "../utils/error";
 import { executeSafely } from "../utils/safeExecutor";
+import { socket } from "../utils/socket";
 
 const feedRouter = express.Router();
 
@@ -61,6 +62,8 @@ feedRouter.post(
       title: req.body.title,
     });
 
+    socket.getSocketIO().emit('posts', { action: 'create', post });
+
     res.status(201).json({ post });
   })
 );
@@ -86,6 +89,8 @@ feedRouter.put(
       title: req.body.title,
     });
 
+    socket.getSocketIO().emit('posts', { action: 'update', post });
+
     res.status(200).json({ post });
   })
 );
@@ -95,6 +100,9 @@ feedRouter.delete(
   authorization,
   executeSafely(async (req: Request, res: Response) => {
     await feedService.deletePost(req.params.id);
+
+    socket.getSocketIO().emit('posts', { action: 'delete', postId: req.params.id });
+
     res.status(200).json({});
   })
 );

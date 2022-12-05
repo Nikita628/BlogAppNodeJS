@@ -1,6 +1,7 @@
 import bodyParser from "body-parser";
 import express from "express";
 import path from "path";
+import { Server } from "socket.io";
 
 import { accessControl } from "./middleware/accessControl";
 import { feedRouter } from "./routes/feed";
@@ -9,12 +10,8 @@ import { connectDb } from "./database/connection";
 import { errorHandling } from "./middleware/errorHandling";
 import { fileStorage } from "./middleware/fileStorage";
 import { authRouter } from "./routes/auth";
-
-// declare module 'express' {
-//     interface Request {
-//         userId: string;
-//     }
-// }
+import { config } from "./config";
+import { socket } from "./utils/socket";
 
 const app = express();
 
@@ -34,5 +31,9 @@ app.use(errorHandling);
 // start the app
 (async function () {
   await connectDb();
-  app.listen(3001);
+  const server = app.listen(3001);
+  const io = socket.init(server);
+
+  io.on("connection", (socket) => {
+  });
 })();

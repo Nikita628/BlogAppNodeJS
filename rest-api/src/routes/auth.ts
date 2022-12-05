@@ -51,13 +51,16 @@ router.get(
 );
 
 router.put(
-    "/status",
-    authorization,
-    executeSafely(async (req, res) => {
-      const result = await authService.updateStatus(req.body.status, req.params.userId);
-  
-      res.status(200).json({ status: result });
-    })
-  );
+  "/status",
+  authorization,
+  executeSafely(async (req, res) => {
+    const result = await authService.updateStatus(
+      req.body.status,
+      req.params.userId
+    );
+
+    res.status(200).json({ status: result });
+  })
+);
 
 export { router as authRouter };

@@ -21,13 +21,13 @@ export class FeedService implements IFeedService {
     const user = await UserModel.findById(post.creator._id.toString());
 
     if (!user) {
-      throw createError('post without creator', 404);
+      throw createError("post without creator", 404);
     }
 
     UserModel.updateOne(
       { _id: user._id.toString() },
       { $pull: { posts: { creator: post.creator._id.toString() } } },
-      { safe: true, multi: true },
+      { safe: true, multi: true }
     );
 
     await PostModel.findByIdAndDelete(id);
@@ -116,6 +116,7 @@ export class FeedService implements IFeedService {
   async getPosts(filter: IPostFilterParam): Promise<IPage<IPost>> {
     const posts = await PostModel.find()
       .populate("creator")
+      .sort({ createdAt: -1 })
       .skip((filter.page - 1) * filter.pageSize)
       .limit(filter.pageSize);
 

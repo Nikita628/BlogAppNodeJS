@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import openSocket from "socket.io-client";
 
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
@@ -24,10 +25,10 @@ class Feed extends Component {
 
   componentDidMount() {
     fetch(`${config.apiUrl}/auth/status`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${this.props.token}`
-      }
+        Authorization: `Bearer ${this.props.token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200) {
@@ -41,7 +42,48 @@ class Feed extends Component {
       .catch(this.catchError);
 
     this.loadPosts();
+
+    const socket = openSocket(`${config.apiUrl}`);
+
+    socket.on('posts', data => {
+      if (data.action === 'create') {
+        this.addPost(data.post);
+      } else if (data.action === 'update') {
+        this.updatePost(data.post);
+      } else if (data.action === 'delete') {
+        this.loadPosts();
+      }
+    });
   }
+
+  addPost = (post) => {
+    this.setState((prevState) => {
+      const updatedPosts = [...prevState.posts];
+
+      if (prevState.postPage === 1) {
+        updatedPosts.pop();
+        updatedPosts.unshift(post);
+      }
+
+      return {
+        posts: updatedPosts,
+        totalPosts: prevState.totalPosts + 1,
+      };
+    });
+  };
+
+  updatePost = post => {
+    this.setState(prevState => {
+      const updatedPosts = [...prevState.posts];
+      const updatedPostIndex = updatedPosts.findIndex(p => p.id === post.id);
+      if (updatedPostIndex > -1) {
+        updatedPosts[updatedPostIndex] = post;
+      }
+      return {
+        posts: updatedPosts
+      };
+    });
+  };
 
   loadPosts = (direction) => {
     if (direction) {
@@ -64,8 +106,8 @@ class Feed extends Component {
 
     fetch(`${config.apiUrl}/feed/posts?${params}`, {
       headers: {
-        'Authorization': `Bearer ${this.props.token}`
-      }
+        Authorization: `Bearer ${this.props.token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200) {
@@ -86,14 +128,14 @@ class Feed extends Component {
   statusUpdateHandler = (event) => {
     event.preventDefault();
     fetch(`${config.apiUrl}/auth/status`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({
         status: this.state.status,
       }),
       headers: {
-        'Authorization': `Bearer ${this.props.token}`,
-        'Content-Type': 'application/json',
-      }
+        Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -132,17 +174,17 @@ class Feed extends Component {
     });
 
     const form = new FormData();
-    form.append('title', postData.title);
-    form.append('content', postData.content);
-    form.append('image', postData.image);
+    form.append("title", postData.title);
+    form.append("content", postData.content);
+    form.append("image", postData.image);
 
     let url = `${config.apiUrl}/feed/post`;
     let method = "POST";
 
     if (this.state.editPost) {
-      form.append('id', this.state.editPost.id);
-      form.append('imageUrl', this.state.editPost.imageUrl);
-      url = `${config.apiUrl}/feed/post`;;
+      form.append("id", this.state.editPost.id);
+      form.append("imageUrl", this.state.editPost.imageUrl);
+      url = `${config.apiUrl}/feed/post`;
       method = "PUT";
     }
 
@@ -150,8 +192,8 @@ class Feed extends Component {
       method,
       body: form,
       headers: {
-        'Authorization': `Bearer ${this.props.token}`
-      }
+        Authorization: `Bearer ${this.props.token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -160,26 +202,8 @@ class Feed extends Component {
         return res.json();
       })
       .then((resData) => {
-        const post = {
-          id: resData.post.id,
-          title: resData.post.title,
-          content: resData.post.content,
-          creator: resData.post.creator,
-          createdAt: resData.post.createdAt,
-          imageUrl: resData.post.imageUrl,
-        };
         this.setState((prevState) => {
-          let updatedPosts = [...prevState.posts];
-          if (prevState.editPost) {
-            const postIndex = prevState.posts.findIndex(
-              (p) => p.id === prevState.editPost.id
-            );
-            updatedPosts[postIndex] = post;
-          } else if (prevState.posts.length < 2) {
-            updatedPosts = prevState.posts.concat(post);
-          }
           return {
-            posts: updatedPosts,
             isEditing: false,
             editPost: null,
             editLoading: false,
@@ -204,10 +228,10 @@ class Feed extends Component {
   deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
     fetch(`${config.apiUrl}/feed/post/${postId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${this.props.token}`
-      }
+        Authorization: `Bearer ${this.props.token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -217,10 +241,6 @@ class Feed extends Component {
       })
       .then((resData) => {
         console.log(resData);
-        this.setState((prevState) => {
-          const updatedPosts = prevState.posts.filter((p) => p.id !== postId);
-          return { posts: updatedPosts, postsLoading: false };
-        });
       })
       .catch((err) => {
         console.log(err);
@@ -256,7 +276,11 @@ class Feed extends Component {
               onChange={this.statusInputChangeHandler}
               value={this.state.status}
             />
-            <Button mode="flat" type="submit" onClick={this.statusUpdateHandler}>
+            <Button
+              mode="flat"
+              type="submit"
+              onClick={this.statusUpdateHandler}
+            >
               Update
             </Button>
           </form>
