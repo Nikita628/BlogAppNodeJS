@@ -1,6 +1,5 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
-import { authorization } from "../middleware/authorization";
 import { authService } from "../services";
 import { createValidationError } from "../utils/error";
 import { executeSafely } from "../utils/safeExecutor";
@@ -37,29 +36,6 @@ router.post(
     const result = await authService.login(req.body.email, req.body.password);
 
     res.status(201).json(result);
-  })
-);
-
-router.get(
-  "/status",
-  authorization,
-  executeSafely(async (req, res) => {
-    const result = await authService.getStatus(req.params.userId);
-
-    res.status(200).json({ status: result });
-  })
-);
-
-router.put(
-  "/status",
-  authorization,
-  executeSafely(async (req, res) => {
-    const result = await authService.updateStatus(
-      req.body.status,
-      req.params.userId
-    );
-
-    res.status(200).json({ status: result });
   })
 );
 

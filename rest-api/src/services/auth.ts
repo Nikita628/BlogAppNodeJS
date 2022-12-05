@@ -7,29 +7,6 @@ import { createError } from "../utils/error";
 import { config } from "../config";
 
 export class AuthService implements IAuthService {
-  async updateStatus(status: string, userId: string): Promise<string> {
-    const user = await UserModel.findById(userId);
-
-    if (!user) {
-      throw createError("user does not exist", 404);
-    }
-
-    user.status = status;
-    await user.save();
-
-    return user.status;
-  }
-
-  async getStatus(userId: string): Promise<string> {
-    const user = await UserModel.findById(userId);
-
-    if (!user) {
-      throw createError("user does not exist", 404);
-    }
-
-    return user.status;
-  }
-
   async login(email: string, password: string): Promise<ILoginResult> {
     const user = await UserModel.findOne({ email: email });
 
@@ -59,6 +36,12 @@ export class AuthService implements IAuthService {
   }
 
   async signup(email: string, password: string, name: string): Promise<IUser> {
+    const existingUser = await UserModel.findOne({ email: email });
+
+    if (existingUser) {
+      throw createError("user already exists", 400);
+    }
+
     const encryptedPassword = await bcryp.hash(password, 12);
 
     const user = new UserModel({

@@ -24,7 +24,7 @@ class Feed extends Component {
   };
 
   componentDidMount() {
-    fetch(`${config.apiUrl}/auth/status`, {
+    fetch(`${config.apiUrl}/user/status`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
@@ -127,7 +127,7 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch(`${config.apiUrl}/auth/status`, {
+    fetch(`${config.apiUrl}/user/status`, {
       method: "PUT",
       body: JSON.stringify({
         status: this.state.status,
