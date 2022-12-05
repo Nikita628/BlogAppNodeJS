@@ -11,4 +11,11 @@ Proof of concept Blog application build with React and Express.
 # Stack and tech:
 UI: React,
 
-API: NodeJS, Express, Mongo DB (Mongoose ORM), Graph QL, TypeScript, JWT authentication, WebSockets (Socket.IO)
+API: \
+NodeJS, \
+Express, \
+Mongo DB (Mongoose ORM), \
+Graph QL, \
+TypeScript, \
+JWT authentication, \
+WebSockets (Socket.IO)
