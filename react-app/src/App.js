@@ -62,12 +62,16 @@ class App extends Component {
     this.setState({ authLoading: true });
 
     const gqlQuery = {
-      query: `{
-        login(email: "${authData.email}", password: "${authData.password}") {
+      query: `query Login($email: String, $password: String){
+        login(email: $email, password: $password) {
           token
           userId
         }
       }`,
+      variables: {
+        email: authData.email,
+        password: authData.password,
+      }
     };
 
     fetch(`${config.apiGraphqlUrl}`, {
@@ -116,18 +120,23 @@ class App extends Component {
 
     const gqlQuery = {
       query: `
-        mutation {
+        mutation Signup($email: String, $name: String, $password: String) {
           signup(signupData: 
           {
-            email: "${authData.signupForm.email.value}", 
-            name: "${authData.signupForm.name.value}", 
-            password: "${authData.signupForm.password.value}"
+            email: $email, 
+            name: $name, 
+            password: $password
           }) {
             id
             email
           }
         }
       `,
+      variables: {
+        email:authData.signupForm.email.value,
+        name:authData.signupForm.name.value,
+        password:authData.signupForm.password.value
+      }
     };
 
     fetch(`${config.apiGraphqlUrl}`, {
