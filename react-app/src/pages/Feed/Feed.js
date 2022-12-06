@@ -11,6 +11,8 @@ import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
 import { config } from "../../config";
 
+const PAGE_SIZE = 2;
+
 class Feed extends Component {
   state = {
     isEditing: false,
@@ -36,9 +38,9 @@ class Feed extends Component {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(gqlQuery)
+      body: JSON.stringify(gqlQuery),
     })
       .then((res) => {
         return res.json();
@@ -55,12 +57,12 @@ class Feed extends Component {
 
     const socket = openSocket(`${config.apiUrl}`);
 
-    socket.on('posts', data => {
-      if (data.action === 'create') {
+    socket.on("posts", (data) => {
+      if (data.action === "create") {
         this.addPost(data.post);
-      } else if (data.action === 'update') {
+      } else if (data.action === "update") {
         this.updatePost(data.post);
-      } else if (data.action === 'delete') {
+      } else if (data.action === "delete") {
         this.loadPosts();
       }
     });
@@ -68,11 +70,10 @@ class Feed extends Component {
 
   addPost = (post) => {
     this.setState((prevState) => {
-      const updatedPosts = [...prevState.posts];
+      const updatedPosts = [post, ...prevState.posts];
 
-      if (prevState.postPage === 1) {
+      if (updatedPosts.length > PAGE_SIZE) {
         updatedPosts.pop();
-        updatedPosts.unshift(post);
       }
 
       return {
@@ -82,15 +83,15 @@ class Feed extends Component {
     });
   };
 
-  updatePost = post => {
-    this.setState(prevState => {
+  updatePost = (post) => {
+    this.setState((prevState) => {
       const updatedPosts = [...prevState.posts];
-      const updatedPostIndex = updatedPosts.findIndex(p => p.id === post.id);
+      const updatedPostIndex = updatedPosts.findIndex((p) => p.id === post.id);
       if (updatedPostIndex > -1) {
         updatedPosts[updatedPostIndex] = post;
       }
       return {
-        posts: updatedPosts
+        posts: updatedPosts,
       };
     });
   };
@@ -109,26 +110,41 @@ class Feed extends Component {
       this.setState({ postPage: page });
     }
 
-    const params = new URLSearchParams({
-      page,
-      pageSize: 2,
-    });
+    const gql = {
+      query: `query {
+        posts(pageParam: { page: ${page}, pageSize: ${PAGE_SIZE} }) {
+          totalItems
+          posts {
+            id
+            title
+            content
+            imageUrl
+            creator { name }
+            createdAt
+          }
+        }
+      }`,
+    };
 
-    fetch(`${config.apiUrl}/feed/posts?${params}`, {
+    fetch(`${config.apiGraphqlUrl}`, {
+      method: "POST",
+      body: JSON.stringify(gql),
       headers: {
         Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch posts.");
-        }
         return res.json();
       })
       .then((resData) => {
+        if (resData.errors && resData.errors.length) {
+          throw new Error(resData.errors[0].message);
+        }
+
         this.setState({
-          posts: resData.posts,
-          totalPosts: resData.totalItems,
+          posts: resData.data.posts.posts,
+          totalPosts: resData.data.posts.totalItems,
           postsLoading: false,
         });
       })
@@ -190,35 +206,45 @@ class Feed extends Component {
       editLoading: true,
     });
 
-    const form = new FormData();
-    form.append("title", postData.title);
-    form.append("content", postData.content);
-    form.append("image", postData.image);
+    // const form = new FormData();
+    // form.append("title", postData.title);
+    // form.append("content", postData.content);
+    // form.append("image", postData.image);
 
-    let url = `${config.apiUrl}/feed/post`;
-    let method = "POST";
+    let gql = {
+      query: `mutation {
+        createPost(post: {
+          title: "${postData.title}",
+          content: "${postData.content}",
+          imageUrl: "${"placeholder.jpg"}"
+        }) {
+          id
+          title
+        }
+      }`,
+    };
 
     if (this.state.editPost) {
-      form.append("id", this.state.editPost.id);
-      form.append("imageUrl", this.state.editPost.imageUrl);
-      url = `${config.apiUrl}/feed/post`;
-      method = "PUT";
+      // form.append("id", this.state.editPost.id);
+      // form.append("imageUrl", this.state.editPost.imageUrl);
     }
 
-    fetch(url, {
-      method,
-      body: form,
+    fetch(`${config.apiGraphqlUrl}`, {
+      method: "POST",
+      body: JSON.stringify(gql),
       headers: {
         Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Creating or editing a post failed!");
-        }
         return res.json();
       })
       .then((resData) => {
+        if (resData.errors && resData.errors.length) {
+          throw new Error(resData.errors[0].message);
+        }
+
         this.setState((prevState) => {
           return {
             isEditing: false,

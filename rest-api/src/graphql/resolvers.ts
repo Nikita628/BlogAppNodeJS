@@ -1,8 +1,12 @@
 import { Request } from "express";
+import { IPageParam } from "../models/page";
+import { IPost, IPostCreateData } from "../models/post";
 import { ILoginResult, IUser } from "../models/user";
-import { authService, userService } from "../services";
+import { authService, feedService, userService } from "../services";
+import { socket } from "../utils/socket";
 import { ILoginData } from "./models/login-data";
 import { ISignupData } from "./models/signup-data";
+import { IStatus } from "./models/status";
 import { authorize } from "./utils";
 
 export const resolver = {
@@ -19,23 +23,47 @@ export const resolver = {
     const result = await authService.login(email, password);
     return result;
   },
-  async getStatus(args: any, req: Request): Promise<{ status: string }> {
+
+  async getStatus(_, req: Request): Promise<IStatus> {
     const authorization = authorize(req);
     const result = await userService.getStatus(authorization.userId);
 
     return { status: result };
   },
-  async updateStatus(
-    {
-      status,
-    }: {
-      status: string;
-    },
-    req: Request
-  ): Promise<{ status: string }> {
+  async updateStatus({ status }: IStatus, req: Request): Promise<IStatus> {
     const authorization = authorize(req);
     const result = await userService.updateStatus(status, authorization.userId);
 
     return { status: result };
+  },
+
+  async createPost(
+    { post }: { post: IPostCreateData },
+    req: Request
+  ): Promise<{ post: IPost }> {
+    const authorization = authorize(req);
+
+    post.creator = authorization.userId;
+
+    const result = await feedService.createPost(post);
+
+    socket.getSocketIO().emit("posts", { action: "create", post });
+
+    return { post: result };
+  },
+  async posts({
+    pageParam,
+  }: {
+    pageParam: IPageParam;
+  }): Promise<{ posts: IPost[]; totalItems: number }> {
+    const posts = await feedService.getPosts({
+      page: pageParam.page,
+      pageSize: pageParam.pageSize,
+    });
+
+    return {
+      posts: posts.items,
+      totalItems: posts.total,
+    };
   },
 };

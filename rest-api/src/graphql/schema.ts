@@ -7,21 +7,33 @@ export const schema = buildSchema(`
         email: String!
     }
 
+    input PostCreateData {
+        content: String
+        title: String
+        imageUrl: String
+        creator: String
+    }
+
+    input PageParam {
+        page: Int
+        pageSize: Int
+    }
+
     type Post {
-        id: String!
-        title: String!
-        content: String!
-        imageUrl: String!
-        creator: User!
-        createdAt: String!
+        id: String
+        title: String
+        content: String
+        imageUrl: String
+        creator: User
+        createdAt: String
         updatedAt: String
     }
 
     type User {
-        id: String!
-        name: String!
-        email: String!
-        status: String!
+        id: String
+        name: String
+        email: String
+        status: String
         posts: [Post]
     }
 
@@ -37,11 +49,18 @@ export const schema = buildSchema(`
     type RootMutation {
         signup(signupData: SignupData): User
         updateStatus(status: String): Status
+        createPost(post: PostCreateData): Post
+    }
+
+    type PostsPage {
+        posts: [Post]
+        totalItems: Int
     }
 
     type RootQuery {
         login(email: String, password: String): LoginResult
         getStatus: Status
+        posts(pageParam: PageParam): PostsPage
     }
 
     schema {

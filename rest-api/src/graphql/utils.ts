@@ -20,21 +20,21 @@ export function authorize(req: Request): { userId: string } {
   const token = req.get("Authorization")?.split(" ")[1];
 
   if (!token) {
-    throw createError('not authorized', 401);
+    throw createError("not authorized", 401);
   }
 
-  const result: {userId: string} = { userId: '' };
+  const result: { userId: string } = { userId: "" };
 
   try {
     const decodedToken: any = jwt.verify(token, config.secret);
 
     if (!decodedToken) {
-      throw createError('not authorized', 401);
+      throw createError("not authorized", 401);
     }
 
     result.userId = decodedToken.userId;
   } catch (error) {
-    throw createError('not authorized', 401);
+    throw createError("not authorized", 401);
   }
 
   return result;
