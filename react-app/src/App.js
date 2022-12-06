@@ -60,34 +60,39 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch(`${config.apiUrl}/auth/login`, {
+
+    const gqlQuery = {
+      query: `{
+        login(email: "${authData.email}", password: "${authData.password}") {
+          token
+          userId
+        }
+      }`,
+    };
+
+    fetch(`${config.apiGraphqlUrl}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: authData.email,
-        password: authData.password,
-      }),
+      body: JSON.stringify(gqlQuery),
     })
       .then((res) => {
-        if (res.status === 422) {
-          throw new Error("Validation failed.");
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw new Error("Could not authenticate you!");
-        }
         return res.json();
       })
       .then((resData) => {
         console.log(resData);
+
+        if (resData.errors && resData.errors.length) {
+          throw new Error(resData.errors[0].message);
+        }
+
         this.setState({
           isAuth: true,
-          token: resData.token,
+          token: resData.data.login.token,
           authLoading: false,
-          userId: resData.userId,
+          userId: resData.data.login.userId,
         });
-        localStorage.setItem("token", resData.token);
-        localStorage.setItem("userId", resData.userId);
+        localStorage.setItem("token", resData.data.login.token);
+        localStorage.setItem("userId", resData.data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
@@ -145,7 +150,7 @@ class App extends Component {
       .then((resData) => {
         console.log(resData);
         if (resData.errors && resData.errors[0].status === 400) {
-          throw new Error('validation failed');
+          throw new Error("validation failed");
         }
         this.setState({ isAuth: false, authLoading: false });
         this.props.history.replace("/");

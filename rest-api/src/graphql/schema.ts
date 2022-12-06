@@ -25,12 +25,17 @@ export const schema = buildSchema(`
         posts: [Post]
     }
 
+    type LoginResult {
+        token: String
+        userId: String
+    }
+
     type RootMutation {
         signup(signupData: SignupData): User
     }
 
     type RootQuery {
-        hello: String
+        login(email: String, password: String): LoginResult
     }
 
     schema {
