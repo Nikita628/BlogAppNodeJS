@@ -30,12 +30,18 @@ export const schema = buildSchema(`
         userId: String
     }
 
+    type Status {
+        status: String
+    }
+
     type RootMutation {
         signup(signupData: SignupData): User
+        updateStatus(status: String): Status
     }
 
     type RootQuery {
         login(email: String, password: String): LoginResult
+        getStatus: Status
     }
 
     schema {

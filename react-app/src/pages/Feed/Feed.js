@@ -24,20 +24,30 @@ class Feed extends Component {
   };
 
   componentDidMount() {
-    fetch(`${config.apiUrl}/user/status`, {
-      method: "GET",
+    const gqlQuery = {
+      query: `{
+        getStatus {
+          status
+        }
+      }`,
+    };
+
+    fetch(`${config.apiGraphqlUrl}`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(gqlQuery)
     })
       .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch user status.");
-        }
         return res.json();
       })
       .then((resData) => {
-        this.setState({ status: resData.status });
+        if (resData.errors && resData.errors.length) {
+          throw new Error(resData.errors[0].message);
+        }
+        this.setState({ status: resData.data.getStatus.status });
       })
       .catch(this.catchError);
 
@@ -127,23 +137,30 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch(`${config.apiUrl}/user/status`, {
-      method: "PUT",
-      body: JSON.stringify({
-        status: this.state.status,
-      }),
+
+    const gqlQuery = {
+      query: `mutation {
+        updateStatus(status: "${this.state.status}") {
+          status
+        }
+      }`,
+    };
+
+    fetch(`${config.apiGraphqlUrl}`, {
+      method: "POST",
+      body: JSON.stringify(gqlQuery),
       headers: {
         Authorization: `Bearer ${this.props.token}`,
         "Content-Type": "application/json",
       },
     })
       .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Can't update status!");
-        }
         return res.json();
       })
       .then((resData) => {
+        if (resData.errors && resData.errors.length) {
+          throw new Error(resData.errors[0].message);
+        }
         console.log(resData);
       })
       .catch(this.catchError);
