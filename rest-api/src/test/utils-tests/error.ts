@@ -2,6 +2,14 @@ import { expect } from "chai";
 import { createError, createNotFoundError } from "../../utils/error";
 
 describe("testing error utility functions", () => {
+  before(() => {
+    console.log("initialization");
+  });
+
+  after(() => {
+    console.log("cleanup");
+  });
+
   it("should create not found error", () => {
     const error = createNotFoundError("not found");
 

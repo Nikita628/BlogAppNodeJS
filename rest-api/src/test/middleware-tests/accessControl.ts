@@ -4,6 +4,14 @@ import { stub } from "sinon";
 import { accessControl } from "../../middleware/accessControl";
 
 describe("testing access control middleware", () => {
+  before(() => {
+    console.log("initialization");
+  });
+
+  after(() => {
+    console.log("cleanup");
+  });
+
   it("should add cors headers to response", (done) => {
     const res = {
       headers: {},
@@ -15,9 +23,9 @@ describe("testing access control middleware", () => {
       },
     } as any as Response;
 
-    stub(res, 'setHeader'); // to inject our own implementation of some methods
-    stub(res, 'getHeader').returns('*');
-    
+    stub(res, "setHeader"); // to inject our own implementation of some methods
+    stub(res, "getHeader").returns("*");
+
     const req = {} as Request;
     const next = (() => {}) as NextFunction;
 
