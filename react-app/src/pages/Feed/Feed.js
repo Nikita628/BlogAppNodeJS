@@ -111,8 +111,8 @@ class Feed extends Component {
     }
 
     const gql = {
-      query: `query {
-        posts(pageParam: { page: ${page}, pageSize: ${PAGE_SIZE} }) {
+      query: `query GetPosts($page: Int, $pageSize: Int) {
+        posts(pageParam: { page: $page, pageSize: $pageSize }) {
           totalItems
           posts {
             id
@@ -124,6 +124,10 @@ class Feed extends Component {
           }
         }
       }`,
+      variables: {
+        page,
+        pageSize: PAGE_SIZE,
+      }
     };
 
     fetch(`${config.apiGraphqlUrl}`, {
@@ -155,11 +159,14 @@ class Feed extends Component {
     event.preventDefault();
 
     const gqlQuery = {
-      query: `mutation {
-        updateStatus(status: "${this.state.status}") {
+      query: `mutation UpdateStatus($status: String) {
+        updateStatus(status: $status) {
           status
         }
       }`,
+      variables: {
+        status: this.state.status
+      }
     };
 
     fetch(`${config.apiGraphqlUrl}`, {
@@ -206,27 +213,25 @@ class Feed extends Component {
       editLoading: true,
     });
 
-    // const form = new FormData();
-    // form.append("title", postData.title);
-    // form.append("content", postData.content);
-    // form.append("image", postData.image);
-
     let gql = {
-      query: `mutation {
+      query: `mutation CreatePost($title: String, $content: String, $imageUrl: String) {
         createPost(post: {
-          title: "${postData.title}",
-          content: "${postData.content}",
-          imageUrl: "${"placeholder.jpg"}"
+          title: $title,
+          content: $content,
+          imageUrl: $imageUrl
         }) {
           id
           title
         }
       }`,
+      variables: {
+        title: postData.title,
+        content: postData.content,
+        imageUrl: 'placeholder.jpg',
+      }
     };
 
     if (this.state.editPost) {
-      // form.append("id", this.state.editPost.id);
-      // form.append("imageUrl", this.state.editPost.imageUrl);
     }
 
     fetch(`${config.apiGraphqlUrl}`, {
