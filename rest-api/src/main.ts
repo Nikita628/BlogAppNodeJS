@@ -50,4 +50,5 @@ app.use(errorHandling);
   const io = socket.init(server);
 
   io.on("connection", (socket) => {});
+  console.log('server is running');
 })();

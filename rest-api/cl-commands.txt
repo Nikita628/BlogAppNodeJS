@@ -1,0 +1,15 @@
+docker build -t name:latest . // build an image
+
+docker start containerNameOrId
+docker run -p 3001:3001 --name containerName imageNameOrId // create new container and start // -d detached mode
+docker stop containerNameOrId
+
+docker logs containerNameOrId //output into console from a container
+docker ps -a //list all containers
+
+docker rm containerName //remove a container
+
+image - [code, dependencies] 'template for a container'
+image is layered. commands are executed in layers for optimization reasons.
+
+container - standalone unit, runs an image
