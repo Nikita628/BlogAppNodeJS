@@ -20,4 +20,4 @@ COPY . /app
 # purely instructional purpose, must set port in docker run command
 EXPOSE ${PORT}
 
-CMD [ "npm", "run", "start:local" ]
+CMD [ "npm", "run", "start" ]
