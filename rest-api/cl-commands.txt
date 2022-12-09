@@ -14,6 +14,8 @@ docker run -e PORT=3001 // set environment variable
 docker run --env-file ./.env // set env variables in an env file
 docker build --build-arg NAME=VALUE // add build args
 
+docker-compose up --build
+docker-compose down
 
 
 -------------------------------------------------------------
@@ -38,5 +40,5 @@ docker build -t blog-api .
 docker run --name blog-api --rm -d -p 3001:3001 --network node-blog-net -v images:/app/images -v "D:\repos\BlogAppNodeJS\rest-api:/app" blog-api
 
 docker build -t blog-app .
-docker run --name blog-app --rm -d -p 3000:3001 --network node-blog-net -v D:\repos\BlogAppNodeJS\react-app:/app blog-app
+docker run --name blog-app --rm -d -p 3000:3000 --network node-blog-net -v D:\repos\BlogAppNodeJS\react-app:/app blog-app
 

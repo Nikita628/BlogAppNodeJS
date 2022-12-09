@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  blog-app:
+    build:
+      context: ./react-app
+      dockerfile: Dockerfile
+      #args:
+        #- name=value
+    ports:
+      - '3000:3000'
+    image: 'blog-app'
+    container_name: blog-app
+    environment:
+      - PORT=3000
+      - ENVIRONMENT=local
+    volumes:
+      - ./react-app:/app
+    depends_on:
+      - blog-api
+
+  blog-api:
+    build:
+      context: ./rest-api
+      dockerfile: Dockerfile
+    image: 'blog-api'
+    container_name: blog-api
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - ENVIRONMENT=local
+    volumes:
+      - images:/app/images
+      - ./rest-api:/app
+    depends_on:
+      - blog-db
+
+  blog-db:
+    image: 'mongo'
+    container_name: blog-db
+    volumes:
+      - data:/data/db
+    #networks: docker compose automatically creates a network
+      #- node-blog-net
+
+volumes:
+  data:
+  images:

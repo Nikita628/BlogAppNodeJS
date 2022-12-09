@@ -51,7 +51,7 @@ app.use(errorHandling);
 
   io.on("connection", (socket) => {});
   console.log(
-    "server is running on ",
+    "server is running on: ",
     process.env.PORT,
     process.env.ENVIRONMENT
   );
