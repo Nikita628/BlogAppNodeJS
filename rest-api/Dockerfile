@@ -1,5 +1,9 @@
 FROM node:16
 
+# can provide args in docker run command, if not provided, set to defaults
+ARG ENVIRONMENT=local
+ARG PORT=3001
+
 WORKDIR /app
 RUN npm install -g typescript
 
@@ -9,7 +13,11 @@ RUN npm install
 
 COPY . /app
 
+# set env variable, availible in code
+ENV PORT=${PORT}
+ENV ENVIRONMENT=${ENVIRONMENT}
 
-EXPOSE 3001
+# purely instructional purpose, must set port in docker run command
+EXPOSE ${PORT}
 
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "start:local" ]

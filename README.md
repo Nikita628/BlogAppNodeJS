@@ -20,6 +20,8 @@ TypeScript, \
 JWT authentication, \
 WebSockets (Socket.IO)
 
+Docker
+
 # Architecture
 Backend main modules:\
 Core - implemented with several main services, eg. feed, auth, user, all services are hidden behind interfaces.\

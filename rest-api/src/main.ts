@@ -46,9 +46,13 @@ app.use(errorHandling);
 // start the app
 (async function () {
   await connectDb();
-  const server = app.listen(3001);
+  const server = app.listen(process.env.PORT);
   const io = socket.init(server);
 
   io.on("connection", (socket) => {});
-  console.log('server is running');
+  console.log(
+    "server is running on ",
+    process.env.PORT,
+    process.env.ENVIRONMENT
+  );
 })();

@@ -2,9 +2,9 @@ import { buildSchema } from "graphql";
 
 export const schema = buildSchema(`
     input SignupData {
-        password: String!
-        name: String!
-        email: String!
+        password: String
+        name: String
+        email: String
     }
 
     input PostCreateData {

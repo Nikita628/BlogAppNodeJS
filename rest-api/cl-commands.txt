@@ -9,7 +9,34 @@ docker ps -a //list all containers
 
 docker rm containerName //remove a container
 
+docker run -v blog_images:/app/images //create managed volume
+docker run -e PORT=3001 // set environment variable
+docker run --env-file ./.env // set env variables in an env file
+docker build --build-arg NAME=VALUE // add build args
+
+
+
+-------------------------------------------------------------
 image - [code, dependencies] 'template for a container'
 image is layered. commands are executed in layers for optimization reasons.
 
 container - standalone unit, runs an image
+volume - storage on host machine, mapped to container storage (if container is removed, storage survives)
+--------------------------------------------------------------
+networking:
+host.docker.internal:3001 // container to host communication
+docker inspect containerName // -> NetworkSettings -> IP address // container to container
+
+docker network create network-name
+docker run --network network-name // attach container to network // container to container
+------------------------------------------------------------
+
+project commands:
+docker run --name blog-db -v data:/data/db --rm -d --network node-blog-net mongo
+
+docker build -t blog-api .
+docker run --name blog-api --rm -d -p 3001:3001 --network node-blog-net -v images:/app/images -v "D:\repos\BlogAppNodeJS\rest-api:/app" blog-api
+
+docker build -t blog-app .
+docker run --name blog-app --rm -d -p 3000:3001 --network node-blog-net -v D:\repos\BlogAppNodeJS\react-app:/app blog-app
+
