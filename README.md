@@ -1,5 +1,6 @@
 # BlogAppNodeJS
-Proof of concept Blog application build with React and Express.
+Proof of concept Blog application build with React and Express. \
+The application is dockerized with docker compose configuration.
 
 # User stories
 - authentication using JWT (registration and login)
